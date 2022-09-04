@@ -1,12 +1,12 @@
-import { SVGProps } from "react";
+import { ReactElement, SVGProps } from "react";
 
 interface Props {
-  Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  Icon: (props: SVGProps<SVGElement>) => ReactElement;
   title: string;
   onClick?: () => {};
 }
 
-function SidebarRow({ Icon, title, onClick }: Props) {
+function SidebarIcons({ Icon, title, onClick }: Props) {
   return (
     <div
       onClick={() => onClick?.()}
@@ -27,4 +27,5 @@ function SidebarRow({ Icon, title, onClick }: Props) {
   );
 }
 
-export default SidebarRow;
+export default SidebarIcons;
+
