@@ -53,7 +53,7 @@ function TweetPost() {
   return (
     <div className="flex space-x-2 p-5">
       <img
-        src={session?.user?.image || "https://links.papareact.com/gll"}
+        src={session?.user?.image || "https://images.unsplash.com/photo-1525389999255-82bad487f23c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTh8fHVua25vd258ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60"}
         alt=""
         className="mt-4 h-14 w-14 rounded-full"
       ></img>
