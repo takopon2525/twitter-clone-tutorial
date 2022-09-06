@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import Sidebar from "../components/Sidebar";
 import client from "../apollo-client";
+import { Toaster } from "react-hot-toast";
 import { ApolloProvider } from "@apollo/client";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
@@ -10,6 +11,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
     <ApolloProvider client={client}>
       <SessionProvider session={session}>
         <div className="mx-auto max-h-screen lg:max-w-6xl">
+          <Toaster />
           <main className="grid grid-cols-9">
             <Sidebar />
             <Component {...pageProps} />

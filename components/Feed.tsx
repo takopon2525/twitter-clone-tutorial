@@ -3,6 +3,7 @@ import React from "react";
 import { GET_ALL_TWEETS } from "../graphql/queries";
 import Tweet from "./Tweet";
 import { Ring } from "@uiball/loaders";
+import TweetPost from "./TweetPost";
 
 function Feed() {
   const { data, loading, error } = useQuery(GET_ALL_TWEETS);
@@ -24,7 +25,7 @@ function Feed() {
       </div>
       {/* tweet post box */}
       <div className="">
-        {/* <TweetPost /> */}
+        <TweetPost />
       </div>
       {/* feed component */}
       <div>
