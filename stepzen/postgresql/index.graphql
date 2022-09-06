@@ -76,6 +76,7 @@ type Query {
       SELECT T."created_at", T."id", T."image", T."text", T."tweet_id", T."username"
         FROM "public"."comment" T
         WHERE T."tweet_id" = $1
+        order by "created_at" desc
       """
       configuration: "postgresql_config"
     )
@@ -112,7 +113,6 @@ type Mutation {
   insertComment(
     image: String!
     text: String!
-    created_at: DateTime!
     tweet_id: ID!
     username: String!
   ): Comment
@@ -131,11 +131,7 @@ type Mutation {
       dml: DELETE
       configuration: "postgresql_config"
     )
-  insertTweet(
-    image: String!
-    text: String!
-    username: String!
-  ): Tweet
+  insertTweet(image: String!, text: String!, username: String!): Tweet
     @dbquery(
       type: "postgresql"
       schema: "public"
