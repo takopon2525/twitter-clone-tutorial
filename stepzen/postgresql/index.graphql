@@ -134,7 +134,6 @@ type Mutation {
   insertTweet(
     image: String!
     text: String!
-    created_at: DateTime!
     username: String!
   ): Tweet
     @dbquery(

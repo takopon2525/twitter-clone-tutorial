@@ -3,6 +3,7 @@ import React from "react";
 import { GET_ALL_TWEETS } from "../graphql/queries";
 import Tweet from "./Tweet";
 import { Ring } from "@uiball/loaders";
+import TweetPost from "./TweetPost";
 
 function Feed() {
   const { data, loading, error } = useQuery(GET_ALL_TWEETS);
@@ -19,8 +20,13 @@ function Feed() {
     );
   return (
     <div>
+      <div className="flex items-center justify-between">
+        <h1 className="p-5 pb-0 text-xl font-bold">ホーム</h1>
+      </div>
       {/* tweet post box */}
-      <div>This is tweet post component</div>
+      <div className="">
+        <TweetPost />
+      </div>
       {/* feed component */}
       <div>
         {tweets?.map((tweet) => (
