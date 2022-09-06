@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import React from "react";
-import { GET_ALL_TWEETS } from "../graphql/queris";
+import { GET_ALL_TWEETS } from "../graphql/queries";
 import Tweet from "./Tweet";
 import { Ring } from "@uiball/loaders";
 
