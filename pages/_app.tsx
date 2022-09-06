@@ -5,7 +5,7 @@ import Sidebar from "../components/Sidebar";
 import client from "../apollo-client";
 import { Toaster } from "react-hot-toast";
 import { ApolloProvider } from "@apollo/client";
-import Widget from "../components/Widget";
+import Widget from "../components/WIdget";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
