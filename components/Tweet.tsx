@@ -20,7 +20,10 @@ function Tweet({ tweet }: Props) {
       <div className="flex space-x-3">
         <img
           className="h-12 w-12 rounded-full object-cover"
-          src={tweet.image || "https://links.papareact.com/gll"}
+          src={
+            tweet.image ||
+            "https://images.unsplash.com/photo-1525389999255-82bad487f23c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTh8fHVua25vd258ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60"
+          }
           alt=""
         ></img>
         <div>
