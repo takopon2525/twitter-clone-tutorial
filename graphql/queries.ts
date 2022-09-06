@@ -31,12 +31,6 @@ export const GET_TWEET_BY_ID = gql`
         tweet_id
         username
       }
-      voteList {
-        id
-        tweet_id
-        upvote
-        username
-      }
     }
   }
 `;
