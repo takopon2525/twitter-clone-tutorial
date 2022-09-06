@@ -34,3 +34,24 @@ export const ADD_COMMENT = gql`
     }
   }
 `;
+
+export const ADD_VOTE = gql`
+  mutation MyMutation($tweet_id: ID!, $upvote: Boolean!, $username: String!) {
+    insertVote(tweet_id: $tweet_id, upvote: $upvote, username: $username) {
+      tweet_id
+      upvote
+      username
+    }
+  }
+`;
+
+export const DELETE_VOTE = gql`
+  mutation MyMutation($id: ID!) {
+    deleteVote(id: $id) {
+      tweet_id
+      id
+      upvote
+      username
+    }
+  }
+`;

@@ -34,3 +34,14 @@ export const GET_TWEET_BY_ID = gql`
     }
   }
 `;
+
+export const GET_VOTE_USING_TWEET_ID = gql`
+  query MyQuery($id: ID!) {
+    getVoteUsingTweet_id(id: $id) {
+      tweet_id
+      upvote
+      username
+      id
+    }
+  }
+`;
