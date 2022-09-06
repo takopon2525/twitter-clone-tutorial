@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import Head from "next/head";
 import { useMutation, useQuery } from "@apollo/client";
-import { GET_TWEET_BY_ID } from "../../graphql/queries";
-import { ADD_COMMENT } from "../../graphql/mutations";
-import { Ring } from "@uiball/loaders";
+import { ADD_COMMENT, ADD_VOTE, DELETE_VOTE } from "../../graphql/mutations";
+import { useEffect, useState } from "react";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import React from "react";
+import {
+  GET_TWEET_BY_ID,
+  GET_VOTE_USING_TWEET_ID,
+} from "../../graphql/queries";
 import {
   AiOutlineMessage,
   AiOutlineRetweet,
@@ -16,22 +18,85 @@ import {
 import TimeAgo from "react-timeago";
 import japanStrings from "react-timeago/lib/language-strings/ja";
 import buildFormatter from "react-timeago/lib/formatters/buildFormatter";
-import Link from "next/link";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { Ring } from "@uiball/loaders";
 
 function Tweet() {
-  const formatter = buildFormatter(japanStrings);
   const { data: session } = useSession();
   const router = useRouter();
   const [comment, setComment] = useState<string>("");
+  const [userVote, setUserVote] = useState<boolean | undefined>(false);
+  const formatter = buildFormatter(japanStrings);
+  const [showComments, setShowComments] = useState<boolean>(false);
   const { loading, error, data } = useQuery(GET_TWEET_BY_ID, {
-    variables: { id: router.query.tweetId },
+    variables: { id: router.query.tweewId },
   });
   const tweet = data?.getTweet;
   const [addComment] = useMutation(ADD_COMMENT, {
     refetchQueries: [GET_TWEET_BY_ID, "getTweet"],
   });
+  const { data: voteData, loading: voteLoading } = useQuery(
+    GET_VOTE_USING_TWEET_ID,
+    {
+      variables: {
+        id: tweet?.id,
+      },
+    }
+  );
+  const votes: Vote[] = voteData?.getVoteUsingTweet_id;
+  const [addVote, { loading: addVoteLoading }] = useMutation(ADD_VOTE, {
+    refetchQueries: [GET_TWEET_BY_ID, "getTweet"],
+  });
+  const [deleteVote, { loading: deleteVoteLoading }] = useMutation(
+    DELETE_VOTE,
+    {
+      refetchQueries: [GET_TWEET_BY_ID, "getTweet"],
+    }
+  );
 
+  useEffect(() => {
+    const vote = votes?.find(
+      (vote: any) => vote.username === session?.user?.name
+    )?.upvote;
+    setUserVote(vote);
+  }, [votes]);
+  
+  const handleGetCommentList = () => {
+    if (tweet.commentList?.length > 0) {
+      setShowComments(true);
+    }
+  };
+  const upVote = async () => {
+    if (!session) {
+      toast("ログインしてください！");
+      return;
+    }
+    if (!userVote) {
+      const {
+        data: { insertVote: newVote },
+      } = await addVote({
+        variables: {
+          tweet_id: tweet.id,
+          username: session?.user?.name,
+          upvote: true,
+        },
+      });
+    } else {
+      const vote_id = votes.find(
+        (vote: any) => vote.username === session?.user?.name
+      )?.id;
+      const {
+        data: { deleteVote: deleteVoteA },
+      } = await deleteVote({
+        variables: {
+          id: vote_id,
+        },
+      });
+      setUserVote(undefined);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const notification = toast.loading("ツイートを投稿しています...");
@@ -56,7 +121,7 @@ function Tweet() {
       });
     }
   };
-  if (!tweet || loading)
+  if (!tweet || loading || voteLoading || addVoteLoading || deleteVoteLoading)
     return (
       <div
         className="col-span-7 lg:col-span-5 flex w-full justify-center p-10 text-xl"
@@ -101,7 +166,10 @@ function Tweet() {
               </div>
             </div>
             <div className="mt-5 flex justify-between">
-              <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
+              <div
+                className="flex cursor-pointer items-center space-x-3 text-gray-400"
+                onClick={handleGetCommentList}
+              >
                 <div className="p-3 hover:bg-slate-200 hover:rounded-full">
                   <AiOutlineMessage className="h-5 w-5" />
                 </div>
@@ -114,9 +182,13 @@ function Tweet() {
               </div>
               <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
                 <div className="p-3 hover:bg-slate-200 hover:rounded-full">
-                  <AiOutlineHeart className="h-5 w-5" />
+                  <AiOutlineHeart
+                    onClick={() => upVote()}
+                    color={`${userVote ? "red" : ""}`}
+                    className="h-5 w-5"
+                  />
                 </div>
-                <p>0</p>
+                <p>{votes?.length ?? 0}</p>
               </div>
               <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
                 <div className="p-3 hover:bg-slate-200 hover:rounded-full">

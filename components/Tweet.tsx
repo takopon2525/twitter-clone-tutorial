@@ -9,23 +9,94 @@ import japanStrings from "react-timeago/lib/language-strings/ja";
 import buildFormatter from "react-timeago/lib/formatters/buildFormatter";
 import React from "react";
 import Link from "next/link";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_VOTE_USING_TWEET_ID } from "../graphql/queries";
+import { ADD_VOTE, DELETE_VOTE } from "../graphql/mutations";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
+import { Ring } from "@uiball/loaders";
 
 interface Props {
   tweet: Tweet;
 }
 
 function Tweet({ tweet }: Props) {
+  const [userVote, setUserVote] = useState<boolean | undefined>(false);
+  const [mutationLoading, setMutationLoading] = useState<boolean>(false);
   const formatter = buildFormatter(japanStrings);
+
+  const { data, loading } = useQuery(GET_VOTE_USING_TWEET_ID, {
+    variables: {
+      id: tweet.id,
+    },
+  });
+  const votes: Vote[] = data?.getVoteUsingTweet_id;
+  const [addVote] = useMutation(ADD_VOTE, {
+    refetchQueries: [GET_VOTE_USING_TWEET_ID, "getVoteUsingTweet_id"],
+  });
+  const [deleteVote] = useMutation(DELETE_VOTE, {
+    refetchQueries: [GET_VOTE_USING_TWEET_ID, "getVoteUsingTweet_id"],
+  });
+  const { data: session } = useSession();
+  useEffect(() => {
+    const vote = votes?.find(
+      (vote) => vote.username === session?.user?.name
+    )?.upvote;
+    setUserVote(vote);
+  }, [votes]);
+
+  const upVote = async () => {
+    if (!session) {
+      toast("ログインしてください！");
+      return;
+    }
+    if (!userVote) {
+      setMutationLoading(true);
+      const {
+        data: { insertVote: newVote },
+      } = await addVote({
+        variables: {
+          tweet_id: tweet.id,
+          username: session?.user?.name,
+          upvote: true,
+        },
+      });
+      setMutationLoading(false);
+    } else {
+      const vote_id = votes?.find(
+        (vote) => vote.username === session?.user?.name
+      )?.id;
+      setMutationLoading(true);
+      const {
+        data: { deleteVote: deleteVoteA },
+      } = await deleteVote({
+        variables: {
+          id: vote_id,
+        },
+      });
+      setMutationLoading(false);
+      setUserVote(undefined);
+    }
+  };
+  if (!tweet || loading || mutationLoading)
+    return (
+      <div
+        className="flex w-full items-center justify-center p-10 text-xl"
+        aria-live="polite"
+        aria-busy={!tweet}
+      >
+        <Ring size={50} color="#3899e8" />
+      </div>
+    );
+
   return (
     <div className="flex flex-col space-x-3 border-y border-gray-100 p-5 cursor-pointer hover:bg-slate-100">
       <Link href={`tweet/${tweet.id}`}>
         <div className="flex space-x-3">
           <img
             className="h-12 w-12 rounded-full object-cover"
-            src={
-              tweet.image ||
-              "https://images.unsplash.com/photo-1525389999255-82bad487f23c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTh8fHVua25vd258ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60"
-            }
+            src={tweet.image || ""}
             alt=""
           ></img>
           <div>
@@ -41,7 +112,6 @@ function Tweet({ tweet }: Props) {
           </div>
         </div>
       </Link>
-
       <div className="mt-5 flex justify-between">
         <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
           <div className="p-3 hover:bg-slate-200 hover:rounded-full">
@@ -56,9 +126,13 @@ function Tweet({ tweet }: Props) {
         </div>
         <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
           <div className="p-3 hover:bg-slate-200 hover:rounded-full">
-            <AiOutlineHeart className="h-5 w-5" />
+            <AiOutlineHeart
+              onClick={() => upVote()}
+              color={`${userVote ? "red" : ""}`}
+              className="h-5 w-5"
+            />
           </div>
-          <p> 0</p>
+          <p>{votes?.length ?? 0}</p>
         </div>
         <div className="flex cursor-pointer items-center space-x-3 text-gray-400">
           <div className="p-3 hover:bg-slate-200 hover:rounded-full">
