@@ -14,3 +14,29 @@ export const GET_ALL_TWEETS = gql`
     }
   }
 `;
+
+export const GET_TWEET_BY_ID = gql`
+  query MyQuery($id: ID!) {
+    getTweet(id: $id) {
+      created_at
+      id
+      image
+      text
+      username
+      commentList {
+        created_at
+        text
+        id
+        image
+        tweet_id
+        username
+      }
+      voteList {
+        id
+        tweet_id
+        upvote
+        username
+      }
+    }
+  }
+`;
