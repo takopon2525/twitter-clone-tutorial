@@ -31,7 +31,7 @@ function Tweet() {
   const formatter = buildFormatter(japanStrings);
   const [showComments, setShowComments] = useState<boolean>(false);
   const { loading, error, data } = useQuery(GET_TWEET_BY_ID, {
-    variables: { id: router.query.tweewId },
+    variables: { id: router.query.tweetId },
   });
   const tweet = data?.getTweet;
   const [addComment] = useMutation(ADD_COMMENT, {
