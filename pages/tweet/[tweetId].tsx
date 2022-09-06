@@ -66,7 +66,7 @@ function Tweet() {
           <div className="flex flex-col space-x-3 border-y border-gray-100 p-5">
             <div className="flex space-x-3">
               <img
-                className="h-13 w-13 rounded-full object-cover"
+                className="h-12 w-12 rounded-full object-cover"
                 src={tweet.image || ""}
                 alt=""
               ></img>
