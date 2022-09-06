@@ -15,7 +15,6 @@ import {
 import TimeAgo from "react-timeago";
 import japanStrings from "react-timeago/lib/language-strings/ja";
 import buildFormatter from "react-timeago/lib/formatters/buildFormatter";
-import toast from "react-hot-toast";
 import Link from "next/link";
 
 function Tweet() {
@@ -28,16 +27,6 @@ function Tweet() {
     variables: { id: router.query.tweetId },
   });
   const tweet = data?.getTweet;
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const notification = toast.loading("ツイートを投稿しています...");
-    try {
-    } catch (error) {
-      toast.error("コメントの投稿に失敗しました。", {
-        id: notification,
-      });
-    }
-  };
   if (!tweet || loading)
     return (
       <div
@@ -108,7 +97,7 @@ function Tweet() {
             </div>
             {/* 新規コメントの追加 */}
 
-            <form onSubmit={handleSubmit} className="mt-3 flex space-x-3">
+            <form className="mt-3 flex space-x-3">
               <input
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
@@ -119,44 +108,11 @@ function Tweet() {
               <button
                 disabled={!comment}
                 type="submit"
-                className="rounded-full bg-twitter text-white px-5 disabled:text-gray-200 hover:bg-sky-600"
+                className="rounded-full bg-sky-400 text-white px-5 disabled:text-gray-200 hover:bg-sky-600"
               >
                 返信
               </button>
             </form>
-
-            {/* 既にあるコメントを追加 */}
-            {tweet.commentList.length > 0 && (
-              <div className="my-2 mt-5 max-h-52 space-y-5 overflow-y-auto border-t border-gray-100 p-5">
-                {tweet.commentList?.map((comment: any, index: number) => (
-                  <div key={comment.id} className="relative flex space-x-2">
-                    {/* 最後のhr表示は無しにする */}
-                    <hr
-                      className={
-                        tweet.commentList.length - 1 === index
-                          ? "hidden"
-                          : "absolute left-5 top-10 h-8 border-x"
-                      }
-                    />
-                    <img
-                      src={comment.image}
-                      className="mt-2 h-7 w-7 rounded-full object-cover"
-                    />
-                    <div>
-                      <div className="flex items-center space-x-3">
-                        <p className="mr-1 font-bold">{comment.username}</p>
-                        <TimeAgo
-                          className="text-sm text-gray-500"
-                          date={comment.created_at}
-                          formatter={formatter}
-                        />
-                      </div>
-                      <p>{comment.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       )}
