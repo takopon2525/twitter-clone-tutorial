@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { GET_TWEET_BY_ID } from "../../graphql/queries";
+import { ADD_COMMENT } from "../../graphql/mutations";
 import { Ring } from "@uiball/loaders";
 import {
   AiOutlineMessage,
@@ -16,17 +17,45 @@ import TimeAgo from "react-timeago";
 import japanStrings from "react-timeago/lib/language-strings/ja";
 import buildFormatter from "react-timeago/lib/formatters/buildFormatter";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 function Tweet() {
   const formatter = buildFormatter(japanStrings);
-  const { data: sesson } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [comment, setComment] = useState<string>("");
-  console.log(router.query);
   const { loading, error, data } = useQuery(GET_TWEET_BY_ID, {
     variables: { id: router.query.tweetId },
   });
   const tweet = data?.getTweet;
+  const [addComment] = useMutation(ADD_COMMENT, {
+    refetchQueries: [GET_TWEET_BY_ID, "getTweet"],
+  });
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const notification = toast.loading("ツイートを投稿しています...");
+    try {
+      const {
+        data: { insertComment: newComment },
+      } = await addComment({
+        variables: {
+          text: comment,
+          tweet_id: router.query.tweetId,
+          username: session?.user?.name,
+          image: session?.user?.image,
+        },
+      });
+      toast.success("コメントが投稿されました！", {
+        id: notification,
+      });
+      setComment("");
+    } catch (error) {
+      toast.error("コメントの投稿に失敗しました。", {
+        id: notification,
+      });
+    }
+  };
   if (!tweet || loading)
     return (
       <div
@@ -97,7 +126,7 @@ function Tweet() {
             </div>
             {/* 新規コメントの追加 */}
 
-            <form className="mt-3 flex space-x-3">
+            <form onSubmit={handleSubmit} className="mt-3 flex space-x-3">
               <input
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
@@ -113,6 +142,36 @@ function Tweet() {
                 返信
               </button>
             </form>
+            {tweet.commentList.length > 0 && (
+              <div className="my-2 mt-5 max-h-52 space-y-5 overflow-y-auto border-t border-gray-100 p-5">
+                {tweet.commentList?.map((comment: any, index: number) => (
+                  <div key={comment.id} className="relative flex space-x-2">
+                    <hr
+                      className={
+                        tweet.commentList.length - 1 === index
+                          ? "hidden"
+                          : "absolute left-5 top-10 h-8 border-x"
+                      }
+                    />
+                    <img
+                      src={comment.image}
+                      className="mt-2 h-7 w-7 rounded-full object-cover"
+                    />
+                    <div>
+                      <div className="flex items-center space-x-3">
+                        <p className="mr-1 font-bold">{comment.username}</p>
+                        <TimeAgo
+                          className="text-sm text-gray-500"
+                          date={comment.created_at}
+                          formatter={formatter}
+                        />
+                      </div>
+                      <p>{comment.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -11,3 +11,26 @@ export const ADD_TWEET = gql`
     }
   }
 `;
+
+export const ADD_COMMENT = gql`
+  mutation MyMutation(
+    $text: String!
+    $tweet_id: ID!
+    $username: String!
+    $image: String!
+  ) {
+    insertComment(
+      text: $text
+      tweet_id: $tweet_id
+      username: $username
+      image: $image
+    ) {
+      created_at
+      id
+      image
+      text
+      tweet_id
+      username
+    }
+  }
+`;
