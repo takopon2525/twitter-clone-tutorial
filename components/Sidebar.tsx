@@ -35,7 +35,7 @@ function Sidebar() {
         />
         <SidebarIcons Icon={HiOutlineDotsCircleHorizontal} title="もっと見る" />
         {session && (
-          <button className="max-fit group mt-4 lg:w-full rounded-full bg-twitter p-4 text-sm font-bold text-white lg:text-base relative">
+          <button className="max-fit group mt-4 lg:w-full rounded-full bg-sky-400 p-4 text-sm font-bold text-white lg:text-base relative">
             <RiQuillPenLine className="h-6 w-6 lg:hidden" />
             <span className="lg:hidden invisible w-[74px] rounded text-[12px] font-bold text-white py-1 bg-slate-400 top-11 -left-3 group-hover:visible opacity-100 absolute text-center">
               ツイートする
