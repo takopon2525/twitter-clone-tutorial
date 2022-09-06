@@ -56,8 +56,10 @@ type Query {
   getTweetList: [Tweet]
     @dbquery(
       type: "postgresql"
-      schema: "public"
-      table: "tweet"
+      query: """
+      select *, "tweet".id as id from "tweet"
+      order by "tweet"."created_at" desc
+      """
       configuration: "postgresql_config"
     )
   getTweet(id: ID!): Tweet
